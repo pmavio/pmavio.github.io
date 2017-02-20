@@ -1,69 +1,117 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<title>可乐君生日快乐！</title>
+	<title>Cola & Juice</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="keywords" content="生日礼物,惊喜,有趣" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-	<link href="css/ohmygod.css" rel="stylesheet" type="text/css"/>
+	<script src="js/jquery-3.1.1.js"></script>
+	<script src="js/jquery.cookie.js"></script>
+	<script src="js/clipboard.min.js"></script>
+	<script src="js/vue.js" />
+	<script type="text/javascript">
 
-
+	</script>
 </head>
 <body>
-	<div class="container">
-		<div class="row">
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/1.jpg" alt="...">
-				</a>
-			</div>
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/2.jpg" alt="...">
-				</a>
-			</div>
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/3.jpg" alt="...">
-				</a>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/4.jpg" alt="...">
-				</a>
-			</div>
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/5.jpg" alt="...">
-				</a>
-			</div>
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/6.jpg" alt="...">
-				</a>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/7.jpg" alt="...">
-				</a>
-			</div>
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/8.jpg" alt="...">
-				</a>
-			</div>
-			<div class="col-xs-4 col-md-4">
-				<a href="##" class="thumbnail">
-					<img src="img/9.jpg" alt="...">
-				</a>
-			</div>
-		</div>
-	</div>
+<div id="app">
+	<temp-line v-for="item in lines" :item="item" ></temp-line>
 
+	<p />
+	<p />
+	<div>{{result}}</div>
+	<button id="btnCopy">点击复制</button>
+</div>
+
+
+<script type="text/javascript">
+    var clipboard = new Clipboard('#btnCopy', {
+        text: function() {
+            return app.result;
+        }
+    });
+
+    var id = 0;
+    function nextLineId(){
+        return 'line' + id++;
+    }
+    function Line(name){
+        this.id = nextLineId();
+        this.name = name;
+        this.num = $.cookie(name);
+        if(this.num == null){
+            this.num = 0;
+        }
+    }
+    var mlines = [
+        /**
+         * 今日办卡数量36，本月累计216252。
+         今日停车券发放量786，车辆数482，本周停车券发放量1835，剩余9966。
+         （其中积分兑换4，累计1204。1小时178，2小时582，佰草集10，思妍丽4，艾维庭8）
+         美加净牙膏19。积分换礼品0。
+         */
+        new Line('今日办卡数量'),
+        new Line('，本月累计'),
+        new Line('。今日停车券发放量'),
+        new Line('，车辆数'),
+        new Line('，本周停车券发放量'),
+        new Line('，剩余'),
+        new Line('。（其中积分兑换'),
+        new Line('，累计'),
+        new Line('。1小时'),
+        new Line('，2小时'),
+        new Line('，佰草集'),
+        new Line('，思妍丽'),
+        new Line('，艾维庭'),
+        new Line('）美加净牙膏'),
+        new Line('。积分换礼品'),
+    ]
+
+    Vue.component('temp-line', {    //注册模板名称和模板内容
+        props: ['item'],                    //注册模板内数据对象名称？不能使用大写字母
+        template: '<tr :id="item.id"><td>{{item.name}}</td><td>' +
+		'<input type="button" value="-" @click="numMin(item)"/>' +
+		'<input class="num" name="goodnum" type="text" :value="item.num" style="width:50px;" />' +
+		'<input type="button" value="+" @click="numAdd(item)"/>' +
+		'</td></tr>',
+		methods: {
+            numAdd: function (line) {
+                line.num ++;
+                updateLine(line);
+            },
+            numMin: function (line) {
+                line.num --;
+                updateLine(line);
+            }
+		}
+    });
+
+	var app = new Vue({
+	    el: '#app',
+		data: {
+	        lines: mlines,
+			result: '',
+		},
+		methods: {
+            copyResult: function (obj) {
+            }
+		}
+	});
+
+    function updateLine(line){
+        $.cookie(line.name, line.num, { expires: 7 });
+        updateResult();
+    }
+
+    function updateResult() {
+        app.result = '';
+        for(var i=0; i<mlines.length; i++){
+            var line = mlines[i];
+            app.result += line.name + line.num;
+        }
+        app.result += '。';
+    }
+
+</script>
 </body>
 </html>
